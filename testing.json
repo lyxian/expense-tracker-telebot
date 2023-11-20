@@ -1,0 +1,314 @@
+{
+  "users": [
+    {
+      "username": "abc",
+      "id": 123
+    },
+    {
+      "username": "def",
+      "id": 456
+    }
+  ],
+  "records": [
+    {
+      "id": 123,
+      "category": 1,
+      "amount": "39.55",
+      "timestamp": "2023-11-29"
+    },
+    {
+      "id": 123,
+      "category": 1,
+      "amount": "32.54",
+      "timestamp": "2023-11-18"
+    },
+    {
+      "id": 123,
+      "category": 3,
+      "amount": "82.89",
+      "timestamp": "2023-11-07"
+    },
+    {
+      "id": 123,
+      "category": 1,
+      "amount": "46.37",
+      "timestamp": "2023-11-15"
+    },
+    {
+      "id": 123,
+      "category": 2,
+      "amount": "90.43",
+      "timestamp": "2023-11-24"
+    },
+    {
+      "id": 456,
+      "category": 2,
+      "amount": "21.24",
+      "timestamp": "2023-11-11"
+    },
+    {
+      "id": 123,
+      "category": 4,
+      "amount": "89.15",
+      "timestamp": "2023-11-23"
+    },
+    {
+      "id": 456,
+      "category": 3,
+      "amount": "18.54",
+      "timestamp": "2023-11-06"
+    },
+    {
+      "id": 123,
+      "category": 3,
+      "amount": "15.81",
+      "timestamp": "2023-11-17"
+    },
+    {
+      "id": 123,
+      "category": 3,
+      "amount": "26.65",
+      "timestamp": "2023-11-07"
+    },
+    {
+      "id": 123,
+      "category": 2,
+      "amount": "59.37",
+      "timestamp": "2023-11-27"
+    },
+    {
+      "id": 123,
+      "category": 3,
+      "amount": "51.93",
+      "timestamp": "2023-11-17"
+    },
+    {
+      "id": 123,
+      "category": 2,
+      "amount": "44.87",
+      "timestamp": "2023-11-29"
+    },
+    {
+      "id": 456,
+      "category": 4,
+      "amount": "32.21",
+      "timestamp": "2023-11-22"
+    },
+    {
+      "id": 456,
+      "category": 5,
+      "amount": "41.04",
+      "timestamp": "2023-11-29"
+    },
+    {
+      "id": 456,
+      "category": 2,
+      "amount": "16.31",
+      "timestamp": "2023-11-18"
+    },
+    {
+      "id": 123,
+      "category": 3,
+      "amount": "13.77",
+      "timestamp": "2023-11-01"
+    },
+    {
+      "id": 456,
+      "category": 2,
+      "amount": "17.17",
+      "timestamp": "2023-11-19"
+    },
+    {
+      "id": 456,
+      "category": 1,
+      "amount": "25.59",
+      "timestamp": "2023-11-06"
+    },
+    {
+      "id": 456,
+      "category": 2,
+      "amount": "13.41",
+      "timestamp": "2023-11-13"
+    },
+    {
+      "id": 123,
+      "category": 4,
+      "amount": "63.04",
+      "timestamp": "2023-11-12"
+    },
+    {
+      "id": 123,
+      "category": 3,
+      "amount": "88.22",
+      "timestamp": "2023-11-10"
+    },
+    {
+      "id": 123,
+      "category": 4,
+      "amount": "45.43",
+      "timestamp": "2023-11-11"
+    },
+    {
+      "id": 123,
+      "category": 2,
+      "amount": "61.43",
+      "timestamp": "2023-11-14"
+    },
+    {
+      "id": 456,
+      "category": 4,
+      "amount": "82.40",
+      "timestamp": "2023-11-27"
+    },
+    {
+      "id": 456,
+      "category": 4,
+      "amount": "42.78",
+      "timestamp": "2023-11-29"
+    },
+    {
+      "id": 456,
+      "category": 1,
+      "amount": "23.14",
+      "timestamp": "2023-11-21"
+    },
+    {
+      "id": 456,
+      "category": 5,
+      "amount": "20.96",
+      "timestamp": "2023-11-06"
+    },
+    {
+      "id": 123,
+      "category": 3,
+      "amount": "90.41",
+      "timestamp": "2023-11-29"
+    },
+    {
+      "id": 456,
+      "category": 5,
+      "amount": "86.37",
+      "timestamp": "2023-11-30"
+    },
+    {
+      "id": 456,
+      "category": 2,
+      "amount": "35.86",
+      "timestamp": "2023-11-30"
+    },
+    {
+      "id": 123,
+      "category": 5,
+      "amount": "85.16",
+      "timestamp": "2023-11-26"
+    },
+    {
+      "id": 456,
+      "category": 1,
+      "amount": "13.05",
+      "timestamp": "2023-11-30"
+    },
+    {
+      "id": 456,
+      "category": 5,
+      "amount": "84.72",
+      "timestamp": "2023-11-28"
+    },
+    {
+      "id": 456,
+      "category": 2,
+      "amount": "7.62",
+      "timestamp": "2023-11-14"
+    },
+    {
+      "id": 456,
+      "category": 1,
+      "amount": "7.76",
+      "timestamp": "2023-11-28"
+    },
+    {
+      "id": 456,
+      "category": 1,
+      "amount": "63.73",
+      "timestamp": "2023-11-26"
+    },
+    {
+      "id": 456,
+      "category": 5,
+      "amount": "63.51",
+      "timestamp": "2023-11-01"
+    },
+    {
+      "id": 123,
+      "category": 1,
+      "amount": "73.98",
+      "timestamp": "2023-11-26"
+    },
+    {
+      "id": 456,
+      "category": 5,
+      "amount": "71.70",
+      "timestamp": "2023-11-17"
+    },
+    {
+      "id": 123,
+      "category": 4,
+      "amount": "49.47",
+      "timestamp": "2023-11-15"
+    },
+    {
+      "id": 456,
+      "category": 5,
+      "amount": "56.70",
+      "timestamp": "2023-11-18"
+    },
+    {
+      "id": 123,
+      "category": 3,
+      "amount": "56.32",
+      "timestamp": "2023-11-03"
+    },
+    {
+      "id": 456,
+      "category": 1,
+      "amount": "30.55",
+      "timestamp": "2023-11-19"
+    },
+    {
+      "id": 456,
+      "category": 2,
+      "amount": "88.20",
+      "timestamp": "2023-11-25"
+    },
+    {
+      "id": 123,
+      "category": 5,
+      "amount": "20.96",
+      "timestamp": "2023-11-06"
+    },
+    {
+      "id": 456,
+      "category": 3,
+      "amount": "57.18",
+      "timestamp": "2023-11-16"
+    },
+    {
+      "id": 123,
+      "category": 2,
+      "amount": "19.29",
+      "timestamp": "2023-11-17"
+    },
+    {
+      "id": 456,
+      "category": 3,
+      "amount": "95.67",
+      "timestamp": "2023-11-07"
+    },
+    {
+      "id": 456,
+      "category": 1,
+      "amount": "18.86",
+      "timestamp": "2023-11-12"
+    }
+  ]
+}
