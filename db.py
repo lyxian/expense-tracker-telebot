@@ -2,14 +2,19 @@ from utils import updateSecretsEnv
 import subprocess
 
 class DB:
-    def __init__(self, dbName=None, logFile=None):
+    def __init__(self, dbName=None, outputRaw=True, logFile=None):
         self.env = updateSecretsEnv()
         self.logFile = logFile
         self.dbName = dbName
         self.output = None
+        self.outputLast = None
         self.cmd = None
-        self.connString = ['mysql', '-h', self.env['DATABASE_HOST'], '-u', self.env['DATABASE_USER'], \
-            '-p{}'.format(self.env['DATABASE_PASS']) , self.dbName, '-tvve']
+        if outputRaw:
+            self.connString = ['mysql', '-h', self.env['DATABASE_HOST'], '-u', self.env['DATABASE_USER'], \
+                '-p{}'.format(self.env['DATABASE_PASS']) , self.dbName, '-se']
+        else:
+            self.connString = ['mysql', '-h', self.env['DATABASE_HOST'], '-u', self.env['DATABASE_USER'], \
+                '-p{}'.format(self.env['DATABASE_PASS']) , self.dbName, '-tvve']
 
         self.testConnection()
 
@@ -20,6 +25,7 @@ class DB:
             else:
                 self.output = f'--- no output ---'
             f.write(self.output)
+        self.outputLast = self.output
         self.output = None
         self.cmd = None
 
@@ -33,12 +39,20 @@ class DB:
         self.cmd = self.connString + [cmd]
         self.executeCommand()
 
-    def runSelect(self, tableName, condition=None, count=None):
-        if condition is None and count is None:
+    def runSelect(self, tableName, column=None, condition=None, count=None):
+        if column is None and condition is None and count is None:
             cmd = f'SELECT * FROM {tableName};'
             self.cmd = self.connString + [cmd]
         else:
-            pass
+            if column:
+                cmd = f'SELECT {column} FROM {tableName} '
+            else:
+                cmd = f'SELECT * FROM {tableName} '
+            if condition:
+                cmd += f'WHERE {condition} '
+            if count:
+                cmd += f'LIMIT {count} '
+            self.cmd = self.connString + [f'{cmd};']
         self.executeCommand()
 
     # INSERT INTO Students(name, address, grades, phone) VALUES ('Harry', 'Potter', 31, 'USA');
@@ -49,12 +63,11 @@ class DB:
                 newPayload = DB._formatPayload(item)
                 cmdStr += [f'INSERT IGNORE INTO {tableName} ({newPayload[0]}) VALUES ({newPayload[1]});']
             cmd = '\n'.join(cmdStr)
-        elif isinstance(payload, str):
+        elif isinstance(payload, dict):
             newPayload = DB._formatPayload(payload)
             cmd = f'INSERT INTO {tableName} ({newPayload[0]}) VALUES ({newPayload[1]});'
         else:
             raise Exception('invalid payload type')
-        print(cmd)
         self.cmd = self.connString + [cmd]
         self.executeCommand()
 
@@ -62,6 +75,10 @@ class DB:
         self.executeCommand()
 
     def runDelete(self):
+        self.executeCommand()
+
+    def runCustom(self, cmd):
+        self.cmd = self.connString + [cmd]
         self.executeCommand()
 
     @staticmethod

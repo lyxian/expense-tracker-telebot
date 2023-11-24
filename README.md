@@ -11,6 +11,17 @@ Requirements:
   - insert
   - update
   - delete
+- App (telebot) :
+  - commands (\* = auto-generated)
+    - /start,help
+    - /join
+      - add user to DB << username\*, id\*
+    - /add
+      - add record to DB << id\*, date, category, amount, comment
+    - /edit
+    - /query
+- CLI :
+  - sql queries
 
 RDBMS:
 
@@ -24,6 +35,7 @@ RDBMS:
   - id
   - category
   - amount
+  - comment
   - timestamp
   - created
 - categories
@@ -36,6 +48,7 @@ cryptography==37.0.4
 requests==2.28.1
 pendulum==2.1.2
 flask==2.2.2
+Werkzeug==2.2.2
 pyyaml==6.0
 pytest==7.1.2
 
