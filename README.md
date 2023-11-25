@@ -26,21 +26,31 @@ Requirements:
 RDBMS:
 
 - users
-  - num
+  - num (pk)
   - username
-  - id (pk)
+  - id (fk)
   - created
 - records
   - num (pk)
-  - id
-  - category
+  - id (fk)
+  - category (fk)
   - amount
   - comment
   - timestamp
   - created
 - categories
-  - id
+  - id (pk)
   - category
+- statuses
+  - id
+  - status
+- messages
+  - num (pk)
+  - id (fk)
+  - status
+  - message
+  - lastCallbackId
+  - lastUpdated
 
 ```
 ##Packages (list required packages & run .scripts/python-pip.sh)

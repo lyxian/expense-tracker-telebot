@@ -10,8 +10,9 @@ import os
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ForceReply
 import subprocess
+import pendulum
 
-from markups import createMarkupCalendar, createMarkupCategory
+from markups import createMarkupCalendar, createMarkupCategory, createMarkupConfirm, statusMap, categoryMap
 from utils import getToken
 from db import DB
 
@@ -30,7 +31,7 @@ def createBot():
     # bot.isAuthorized = False
     # bot.awaitingInput = False
 
-    validCallbacks = ['date', 'category']
+    validCallbacks = ['date', 'category', 'confirm']
     # markup = ReplyKeyboardMarkup(row_width=len(buttons))
     # markup.add(*[KeyboardButton(button) for button in buttons])
 
@@ -50,7 +51,8 @@ def createBot():
     def _join(message):
         # query user in users
         db.runSelect('users', column='count(id)', condition=f'id = "{message.chat.id}"')
-        if int(db.outputLast):
+        output = db.outputLast
+        if int(output):
             text = 'You have already joined expense-tracker!'
         else:
             db.runInsert('users', {
@@ -60,17 +62,29 @@ def createBot():
             text = 'You have successfully joined expense-tracker!'
         bot.send_message(message.chat.id, text)
         return
+
+    @bot.message_handler(commands=['add'])
+    def _add(message):
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+        db.runSelect('users', column='id, username', condition=f'id = "{message.chat.id}"', showColumn=True)
+        d = DB._resultToJson(db.outputLast)
+        if message.chat.id in d:
+            bot.send_message(message.chat.id, 'Choose Date', reply_markup=createMarkupCalendar())
+        else:
+            bot.send_message(message.chat.id, 'You have not joined expense-tracker, please do /join first')
+        return
     
     def checkValidCallback(callback):
         return callback.data[0] == '/' or callback.data.split(':')[0] in validCallbacks
 
-    @bot.callback_query_handler(func=lambda callback: checkValidCallback(callback))
+    @bot.callback_query_handler(func=checkValidCallback) 
     def _callback(callback):
         currentCommand = callback.data.split(':')[0]
-        currentValues = dict([i.split(':') for i in callback.data.split(',')])
+        if ':' in callback.data:
+            currentValues = dict([i.split(':') for i in callback.data.split(',')])
 
         if currentCommand == '/cancel':
-            bot.send_message(chat_id=callback.message.chat.id, text='cancel')
+            bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
         elif currentCommand == '/date':
             n = eval(currentValues['/date'])
             bot.edit_message_text(
@@ -87,16 +101,74 @@ def createBot():
                 reply_markup=createMarkupCategory(callback.data)
             )
         elif currentCommand == 'category':
+            messsage = '{} @ {}'.format(currentValues['category'], currentValues['date'])
+            # insert/update last callback id
+            db.runInsertUpdate('messages', {
+                'id': callback.message.chat.id,
+                'status': statusMap['awaitAmount'],
+                'message': '{}'.format(messsage),
+                'lastCallbackId': callback.message.message_id,
+            }, 'status = {}, lastCallbackId = {}, message = "{}"'.format(statusMap['awaitAmount'], callback.message.message_id, messsage))
             bot.edit_message_text(
-                text='{} @ {}\nHow much was it?'.format(currentValues['category'], currentValues['date']),
+                text='{}\nHow much was it?'.format(messsage),
                 chat_id=callback.message.chat.id,
                 message_id=callback.message.message_id,
             )
+        elif currentCommand == 'confirm':
+            if currentValues['confirm'] == 'yes':
+                print(currentValues) 
+                # insert new record
+                db.runInsert('records', {
+                    'id': callback.message.chat.id,
+                    'category': categoryMap[currentValues['category']],
+                    'amount': currentValues['amount'],
+                    # 'comment': '',
+                    'timestamp': currentValues['date']
+                })
+                bot.edit_message_text(
+                    text="New record created at {}".format(pendulum.now(tz='Asia/Singapore').to_datetime_string()),
+                    chat_id=callback.message.chat.id,
+                    message_id=callback.message.message_id,
+                ) 
+            else:
+                bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
         return
 
-    @bot.message_handler(commands=['add'])
-    def _add(message):
+    def awaitAmount(message):
+        db.runSelect('messages', column='id, lastCallbackId, statuses.status', joinType='LEFT JOIN', joinTable='statuses', joinOn=('status', 'num'), showColumn=True)
+        d = DB._resultToJson(db.outputLast)
+        return message.chat.id in d and d[message.chat.id]['status'] == 'awaitAmount'
+        
+    @bot.message_handler(func=awaitAmount)
+    def _awaitAmount(message):
+        db.runSelect('messages', column='id, lastCallbackId, statuses.status', joinType='LEFT JOIN', joinTable='statuses', joinOn=('status', 'num'), showColumn=True)
+        d = DB._resultToJson(db.outputLast)
+        
+        db.runSelect('messages', column='message', condition=f'id = "{message.chat.id}"')
+        output = db.outputLast
+        markupData = ','.join([':'.join(i) for i in zip(['category', 'date', 'amount'], f'{output} @ {message.text}'.split(' @ '))])
+
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+        bot.edit_message_text(
+            text='{}\n${} -- Please confirm'.format(output, message.text),
+            chat_id=message.chat.id,
+            message_id=d[message.chat.id]['lastCallbackId'],
+            reply_markup=createMarkupConfirm(markupData)
+        )
+
+        # insert/update last callback id
+        db.runInsertUpdate('messages', {
+            'id': message.chat.id,
+            'status': statusMap['awaitConfirm'],
+            'message': '{} @ ${}'.format(output, message.text),
+            'lastCallbackId': d[message.chat.id]['lastCallbackId'],
+        }, 'status = {}'.format(statusMap['awaitConfirm']))
+
+    @bot.message_handler(commands=['test'])
+    def _test(message):
         # bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-        bot.send_message(message.chat.id, 'Choose Date', reply_markup=createMarkupCalendar())
+        db.runSelect('messages', column='message', condition=f'id = "{message.chat.id}"')
+        currMessage = db.outputLast
+        print(currMessage)
 
     return bot

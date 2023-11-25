@@ -20,6 +20,21 @@ WEEKDAYS = [
     'Sun'
 ]
 
+statusMap = {
+    'awaitAmount': 1,
+    'awaitComment': 2,
+    'awaitConfirm': 3,
+    'done': 4
+}
+
+categoryMap = {
+    'dining': 1,
+    'shopping': 2,
+    'transport': 3,
+    'entertainment': 4,
+    'miscellaneous': 5
+}
+
 
 class CalendarObject():
 
@@ -44,7 +59,7 @@ def createMarkupCalendar(n=0):
     # Add Days
     for row in current.days:
         markup.add(
-            *[InlineKeyboardButton(text=val, callback_data=f"date:{current.month}-{val}-{current.year}") if val else InlineKeyboardButton(text="-", callback_data=" ") for val in row]
+            *[InlineKeyboardButton(text=val, callback_data=f"date:{current.year}-{current.month}-{val}") if val else InlineKeyboardButton(text="-", callback_data=" ") for val in row]
         )
     # Commands
     markup.add(
@@ -66,37 +81,9 @@ def createMarkupCategory(data):
     )
     return markup
 
-def createMarkupPrice(digits=''):
-    # Options
-    markup = InlineKeyboardMarkup(row_width=3)
-    nums = [str(i) for i in range(1,10)]
-    if '.' not in digits:
-        dot = digits + '.'
-    else:
-        dot = 'INVALID'
-    if digits[-1] == ' ':
-        clear = 'IGNORE'
-        enter = 'IGNORE'
-        dot = digits + '0.'
-    else:
-        clear = 'DEL {}'
-        enter = 'ENTER {}'
-    # Add Inline
+def createMarkupConfirm(data):
+    markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        *[InlineKeyboardButton(text=num, callback_data=digits+num) for num in nums[:3]]
-    )
-    markup.add(
-        *[InlineKeyboardButton(text=num, callback_data=digits+num) for num in nums[3:6]]
-    )
-    markup.add(
-        *[InlineKeyboardButton(text=num, callback_data=digits+num) for num in nums[6:]]
-    )
-    markup.add(
-        InlineKeyboardButton(text='.', callback_data=dot),
-        InlineKeyboardButton(text='0', callback_data=digits+'0'),
-        InlineKeyboardButton(text="C", callback_data=clear.format(digits))
-    )
-    markup.add(
-        InlineKeyboardButton(text="Enter", callback_data=enter.format(digits))
+        *[InlineKeyboardButton(text=response, callback_data=f'confirm:{response},{data}') for response in ['yes', 'no']]
     )
     return markup

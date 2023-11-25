@@ -11,10 +11,10 @@ class DB:
         self.cmd = None
         if outputRaw:
             self.connString = ['mysql', '-h', self.env['DATABASE_HOST'], '-u', self.env['DATABASE_USER'], \
-                '-p{}'.format(self.env['DATABASE_PASS']) , self.dbName, '-se']
+                '-p{}'.format(self.env['DATABASE_PASS']) , self.dbName, '--show-warnings', '-se']
         else:
             self.connString = ['mysql', '-h', self.env['DATABASE_HOST'], '-u', self.env['DATABASE_USER'], \
-                '-p{}'.format(self.env['DATABASE_PASS']) , self.dbName, '-tvve']
+                '-p{}'.format(self.env['DATABASE_PASS']) , self.dbName, '--show-warnings', '-tvve']
 
         self.testConnection()
 
@@ -30,6 +30,7 @@ class DB:
         self.cmd = None
 
     def executeCommand(self):
+        # print(self.cmd)
         p = subprocess.Popen(self.cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=self.env)
         self.output = p.stdout.read().decode().strip()
         self.logOutput()
@@ -39,11 +40,16 @@ class DB:
         self.cmd = self.connString + [cmd]
         self.executeCommand()
 
-    def runSelect(self, tableName, column=None, condition=None, count=None):
-        if column is None and condition is None and count is None:
-            cmd = f'SELECT * FROM {tableName};'
-            self.cmd = self.connString + [cmd]
+    def runSelect(self, tableName, column=None, joinType=None, joinTable=None, joinOn=None, condition=None, count=None, showColumn=False):
+        if showColumn:
+            connString = ['-e' if i == '-se' else i for i in self.connString]
         else:
+            connString = self.connString
+        if column is None and condition is None and count is None:
+            cmd = f'SELECT * FROM {tableName}'
+        else:
+            if joinType and joinOn and joinTable:
+                tableName += f' {joinType} {joinTable} ON {tableName}.{joinOn[0]} = {joinTable}.{joinOn[1]}'
             if column:
                 cmd = f'SELECT {column} FROM {tableName} '
             else:
@@ -52,7 +58,7 @@ class DB:
                 cmd += f'WHERE {condition} '
             if count:
                 cmd += f'LIMIT {count} '
-            self.cmd = self.connString + [f'{cmd};']
+        self.cmd = connString + [f'{cmd};']
         self.executeCommand()
 
     # INSERT INTO Students(name, address, grades, phone) VALUES ('Harry', 'Potter', 31, 'USA');
@@ -65,13 +71,23 @@ class DB:
             cmd = '\n'.join(cmdStr)
         elif isinstance(payload, dict):
             newPayload = DB._formatPayload(payload)
-            cmd = f'INSERT INTO {tableName} ({newPayload[0]}) VALUES ({newPayload[1]});'
+            cmd = f'INSERT IGNORE INTO {tableName} ({newPayload[0]}) VALUES ({newPayload[1]});'
         else:
             raise Exception('invalid payload type')
         self.cmd = self.connString + [cmd]
         self.executeCommand()
 
+    def runInsertUpdate(self, tableName, payload, condition):
+        # INSERT INTO messages (id, status, lastCallbackId) VALUES (1, 2, 3) ON DUPLICATE KEY UPDATE `status` = 3;
+        newPayload = DB._formatPayload(payload)
+        cmd = f'INSERT INTO {tableName} ({newPayload[0]}) VALUES ({newPayload[1]}) ON DUPLICATE KEY UPDATE {condition};'
+        self.cmd = self.connString + [cmd]
+        self.executeCommand()
+
     def runUpdate(self):
+        # UPDATE table_name
+        # SET column1 = value1, column2 = value2, ...
+        # WHERE condition;
         self.executeCommand()
 
     def runDelete(self):
@@ -92,3 +108,10 @@ class DB:
             else:
                 values += [f"'{v}'"]
         return ','.join(columns), ','.join(values)
+
+    @staticmethod
+    def _resultToJson(resultStr):
+        columns, *rows = resultStr.split('\n')
+        columns = columns.split('\t')
+        rows = [row.split('\t') for row in rows]
+        return {(int(row[0]) if row[0].isnumeric() else row[0]): dict(zip(columns[1:], row[1:])) for row in rows}
