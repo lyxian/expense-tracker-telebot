@@ -52,6 +52,16 @@ RDBMS:
   - lastCallbackId
   - lastUpdated
 
+Issues
+
+- is varchar(50) enough for messages.message?
+- add undo to return to previous status
+- .
+
+Done
+
+- .
+
 ```
 ##Packages (list required packages & run .scripts/python-pip.sh)
 cryptography==37.0.4

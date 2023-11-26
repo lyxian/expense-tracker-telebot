@@ -45,12 +45,16 @@ class CalendarObject():
         self.days = calendar.monthcalendar(now.year, now.month)
 
 def createMarkupCalendar(n=0):
-    current = CalendarObject(pendulum.now().add(months=n))
+    now = pendulum.now()
+    current = CalendarObject(now.add(months=n))
 
     markup = InlineKeyboardMarkup(row_width=7)
     # Add Month
     markup.add(
-        InlineKeyboardButton(text=f'{current.monthName}-{current.year}', callback_data=" ")
+        InlineKeyboardButton("<", callback_data=f"/date:{n}-1"),
+        InlineKeyboardButton(text=f'{current.monthName}', callback_data=" "),
+        InlineKeyboardButton(text=f'{current.year}', callback_data=" "),
+        InlineKeyboardButton(">", callback_data=f"/date:{n}+1")
     )
     # Add Weekdays
     markup.add(
@@ -63,9 +67,8 @@ def createMarkupCalendar(n=0):
         )
     # Commands
     markup.add(
-        InlineKeyboardButton("Back", callback_data=f"/date:{n}-1"),
-        InlineKeyboardButton("Cancel", callback_data="/cancel"),
-        InlineKeyboardButton("Next", callback_data=f"/date:{n}+1")
+        InlineKeyboardButton("❌", callback_data="/cancel"),
+        InlineKeyboardButton("Today", callback_data=f"date:{now.year}-{now.month}-{now.day}")
     )
     return markup
 
@@ -73,17 +76,20 @@ def createMarkupCategory(data):
     markup = InlineKeyboardMarkup(row_width=3)
     # Add First Row
     markup.add(
-        *[InlineKeyboardButton(text=category, callback_data=f'category:{category},{data}') for category in CATEGORIES[:3]]
+        *[InlineKeyboardButton(text=category, callback_data=f'category:{category};{data}') for category in CATEGORIES[:3]]
     )
     # Add Second Row
     markup.add(
-        *[InlineKeyboardButton(text=category, callback_data=f'category:{category},{data}') for category in CATEGORIES[3:]]
+        *[InlineKeyboardButton(text=category, callback_data=f'category:{category};{data}') for category in CATEGORIES[3:]],
+        InlineKeyboardButton(text='-', callback_data=" "),
+        InlineKeyboardButton(text='❌', callback_data=f'/cancel: ;{data}')
     )
     return markup
 
-def createMarkupConfirm(data):
-    markup = InlineKeyboardMarkup(row_width=2)
+def createMarkupConfirm(data, mode=None):
+    markup = InlineKeyboardMarkup(row_width=4)
     markup.add(
-        *[InlineKeyboardButton(text=response, callback_data=f'confirm:{response},{data}') for response in ['yes', 'no']]
+        *[InlineKeyboardButton(text=response, callback_data=f'{mode}:{response};{data}') for response in ['yes', 'no']],
+        InlineKeyboardButton(text='❌', callback_data=f'/cancel: ;{data}')
     )
     return markup
