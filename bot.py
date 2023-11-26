@@ -113,6 +113,38 @@ def createBot():
                 'message': '',
                 'lastCallbackId': callback.message.message_id,
             }, 'status = {}, lastCallbackId = {}, message = ""'.format(statusMap['done'], callback.message.message_id))
+        elif currentCommand == '/undo': 
+            db.runSelect('messages', column='id, lastCallbackId, statuses.status, message', joinType='LEFT JOIN', joinTable='statuses', joinOn=('status', 'num'), showColumn=True)
+            d = DB._resultToJson(db.outputLast)
+            currentStatus = d[callback.message.chat.id]['status']
+            if currentStatus == 'done':   # date
+                bot.edit_message_text(
+                    text=f'Choose Date',
+                    chat_id=callback.message.chat.id,
+                    message_id=callback.message.message_id,
+                    reply_markup=createMarkupCalendar()
+                )
+            elif currentStatus == 'awaitAmount':   # category & amount
+                bot.edit_message_text(
+                    text=f'Choose Category @ {currentValues["date"]}',
+                    chat_id=callback.message.chat.id,
+                    message_id=callback.message.message_id,
+                    reply_markup=createMarkupCategory(f'date:{currentValues["date"]}')
+                )
+            elif currentStatus == 'awaitConfirm':   # comment
+                currentData = d[callback.message.chat.id]['message'].split(' @ ')[:-1]
+                markupData = ';'.join([':'.join(i) for i in zip(['amount', 'category', 'date'], currentData)])
+                currentValues = dict([i.split(':') for i in markupData.split(';') if i])
+                bot.edit_message_text(
+                    text='${} {} @ {} \nAny comments?'.format(currentValues['amount'], currentValues['category'], currentValues['date']),
+                    chat_id=callback.message.chat.id,
+                    message_id=d[callback.message.chat.id]['lastCallbackId'],
+                    reply_markup=createMarkupConfirm(markupData, mode='comment')
+                )
+            else:
+                err = 'ERROR: invalid undo status'
+                print(err)
+                raise Exception(err)
         elif currentCommand == '/test':
             bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
             bot.send_message(callback.message.chat.id, callback.data)

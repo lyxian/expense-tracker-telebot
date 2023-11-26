@@ -82,6 +82,7 @@ def createMarkupCategory(data):
     markup.add(
         *[InlineKeyboardButton(text=category, callback_data=f'category:{category};{data}') for category in CATEGORIES[3:]],
         InlineKeyboardButton(text='-', callback_data=" "),
+        InlineKeyboardButton(text='↶', callback_data=f'/undo: ;{data}'),
         InlineKeyboardButton(text='❌', callback_data=f'/cancel: ;{data}')
     )
     return markup
@@ -90,6 +91,7 @@ def createMarkupConfirm(data, mode=None):
     markup = InlineKeyboardMarkup(row_width=4)
     markup.add(
         *[InlineKeyboardButton(text=response, callback_data=f'{mode}:{response};{data}') for response in ['yes', 'no']],
+        InlineKeyboardButton(text='↶', callback_data=f'/undo: ;{data}'),
         InlineKeyboardButton(text='❌', callback_data=f'/cancel: ;{data}')
     )
     return markup

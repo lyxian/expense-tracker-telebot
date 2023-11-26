@@ -55,11 +55,11 @@ RDBMS:
 Issues
 
 - is varchar(50) enough for messages.message?
-- add undo to return to previous status
 - .
 
 Done
 
+- add undo to return to previous status
 - .
 
 ```
