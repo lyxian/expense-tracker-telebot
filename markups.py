@@ -6,8 +6,16 @@ CATEGORIES = [
     'dining',
     'shopping',
     'transport',
+    'investment',
     'entertainment',
-    'miscellaneous',
+    'others',
+]
+
+STATUSES = [
+    'awaitAmount',
+    'awaitComment',
+    'awaitConfirm',
+    'done'
 ]
 
 WEEKDAYS = [
@@ -20,21 +28,8 @@ WEEKDAYS = [
     'Sun'
 ]
 
-statusMap = {
-    'awaitAmount': 1,
-    'awaitComment': 2,
-    'awaitConfirm': 3,
-    'done': 4
-}
-
-categoryMap = {
-    'dining': 1,
-    'shopping': 2,
-    'transport': 3,
-    'entertainment': 4,
-    'miscellaneous': 5
-}
-
+categoryMap = dict(map(lambda x: x[::-1], enumerate(CATEGORIES, start=1)))
+statusMap = dict(map(lambda x: x[::-1], enumerate(STATUSES, start=1)))
 
 class CalendarObject():
 
@@ -46,6 +41,7 @@ class CalendarObject():
 
 def createMarkupCalendar(n=0):
     now = pendulum.now()
+    ytd = now.subtract(days=1)
     current = CalendarObject(now.add(months=n))
 
     markup = InlineKeyboardMarkup(row_width=7)
@@ -68,6 +64,7 @@ def createMarkupCalendar(n=0):
     # Commands
     markup.add(
         InlineKeyboardButton("❌", callback_data="/cancel"),
+        InlineKeyboardButton("Yesterday", callback_data=f"date:{ytd.year}-{ytd.month}-{ytd.day}"),
         InlineKeyboardButton("Today", callback_data=f"date:{now.year}-{now.month}-{now.day}")
     )
     return markup
@@ -81,16 +78,29 @@ def createMarkupCategory(data):
     # Add Second Row
     markup.add(
         *[InlineKeyboardButton(text=category, callback_data=f'category:{category};{data}') for category in CATEGORIES[3:]],
-        InlineKeyboardButton(text='-', callback_data=" "),
+        # InlineKeyboardButton(text='-', callback_data=" "),
+        InlineKeyboardButton(text='↶', callback_data=f'/undo: ;{data}'),
+        InlineKeyboardButton(text='❌', callback_data=f'/cancel: ;{data}')
+    )
+    return markup
+
+def createMarkupUndoCancel(data):
+    markup = InlineKeyboardMarkup(row_width=2)
+    # Add First Row
+    markup.add(
         InlineKeyboardButton(text='↶', callback_data=f'/undo: ;{data}'),
         InlineKeyboardButton(text='❌', callback_data=f'/cancel: ;{data}')
     )
     return markup
 
 def createMarkupConfirm(data, mode=None):
-    markup = InlineKeyboardMarkup(row_width=4)
+    markup = InlineKeyboardMarkup(row_width=3)
+    if mode == 'confirm':
+        arr = ['yes']
+    else:
+        arr = []
     markup.add(
-        *[InlineKeyboardButton(text=response, callback_data=f'{mode}:{response};{data}') for response in ['yes', 'no']],
+        *[InlineKeyboardButton(text=response, callback_data=f'{mode}:{response};{data}') for response in arr],
         InlineKeyboardButton(text='↶', callback_data=f'/undo: ;{data}'),
         InlineKeyboardButton(text='❌', callback_data=f'/cancel: ;{data}')
     )
