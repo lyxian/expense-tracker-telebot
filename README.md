@@ -2,6 +2,10 @@
 
 Description: This app will store different expenses into MySQL DB for future retrievel
 
+TODO:
+
+- .
+
 Requirements:
 
 - start DB connection
@@ -54,13 +58,18 @@ RDBMS:
 
 Issues
 
-- is varchar(50) enough for messages.message?
+- is varchar(50) enough for messages.message AND records.comment?
+- query returns text not optimized for viewing
+  > sends as image instead using PIL
 - .
 
 Done
 
 - add undo to return to previous status
-- .
+- add undo/cancel for all stages
+- db add showTable
+- add yesterday for date
+- include investment,others in CATEGORIES
 
 ```
 ##Packages (list required packages & run .scripts/python-pip.sh)
@@ -73,5 +82,6 @@ pyyaml==6.0
 pytest==7.1.2
 
 pyTelegramBotAPI==4.4.0
+Pillow==10.1.0
 ##Packages
 ```

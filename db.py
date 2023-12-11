@@ -40,11 +40,14 @@ class DB:
         self.cmd = self.connString + [cmd]
         self.executeCommand()
 
-    def runSelect(self, tableName, column=None, joinType=None, joinTable=None, joinOn=None, condition=None, count=None, showColumn=False):
-        if showColumn:
-            connString = ['-e' if i == '-se' else i for i in self.connString]
+    def runSelect(self, tableName, column=None, joinType=None, joinTable=None, joinOn=None, condition=None, count=None, showColumn=False, showTable=False):
+        if showTable:
+            connString = self.connString[:-1] + ['-te']
         else:
-            connString = self.connString
+            if showColumn:
+                connString = ['-e' if i == '-se' else i for i in self.connString]
+            else:
+                connString = self.connString
         if column is None and condition is None and count is None:
             cmd = f'SELECT * FROM {tableName}'
         else:
